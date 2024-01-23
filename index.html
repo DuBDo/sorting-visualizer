@@ -9,9 +9,15 @@
 </head>
 <body>
     <h1>Sorting Visualizer</h1>
-    <hr>
-
     <nav>
+        <div class="array_input">
+            <h3 id="size">Size
+                <input id="size_input" type="range" min="16" max="50"  value="30">
+            </h3>
+            <h3 id="speed"> Speed
+                <input id="speed_input" type="range" min="1" max="10"  value=4>
+            </h3>
+        </div>
         <button id="generateArray">GenerateArray</button>
         <button id="bubbleBtn">BubbleSort</button>
         <button id="selectionBtn">SelectionSort</button>
@@ -19,10 +25,11 @@
         <button id="quickBtn">QuickSort</button>
         <button id="mergeBtn">MergeSort</button>
     </nav>
-    <hr>
-
+    <div>
+        <hr>
+    </div>
     <div id="container"></div>
 
-    <script src="script.js"></script>
+    <script src="index.js"></script>
 </body>
 </html>
