@@ -1,9 +1,6 @@
-const n=30;
-const array=[];
+let waitTime;
+let randomArray=[];
 
-const delay = 10;
-
-generateArray();
 
 //getting references to the buttons
 const generateArr = document.getElementById("generateArray");
@@ -13,218 +10,271 @@ const insertionBtn = document.getElementById("insertionBtn");
 const quickBtn = document.getElementById("quickBtn");
 const mergeBtn = document.getElementById("mergeBtn");
 
-//adding click event listeners to the buttons
-generateArr.addEventListener("click", () => generateArray());
-bubbleBtn.addEventListener("click", () => handleButtonClick(1));
-selectionBtn.addEventListener("click", () => handleButtonClick(2));
-insertionBtn.addEventListener("click", () => handleButtonClick(3));
-quickBtn.addEventListener("click", () => handleButtonClick(4));
-mergeBtn.addEventListener("click", () => handleButtonClick(5));
+var inp_asize = document.getElementById("size_input");
+var inp_aspeed=document.getElementById("speed_input");
 
-function generateArray(){
-    for(let i=0; i<n; i++){
-        array[i]=Math.random();
-    }
-    showBars();
+
+//adding click event listeners to the buttons
+generateArr.addEventListener("click", generateArray);
+bubbleBtn.addEventListener("click", bubbleSort);
+selectionBtn.addEventListener("click", selectionSort);
+insertionBtn.addEventListener("click", insertionSort);
+quickBtn.addEventListener("click", quick_sort);
+mergeBtn.addEventListener("click", merge_sort);
+
+
+//speed maintenance
+waitTime = 250;
+
+inp_aspeed.addEventListener("input", () => {
+
+    waitTime = 250 / (parseInt(inp_aspeed.value));
+})
+//Promise 
+function animate(milisec) {
+    return new Promise(resolve => {
+        setTimeout(() => { resolve('') }, milisec);
+    })
 }
 
+//array size maintenance
+inp_asize.addEventListener("input",generateArray);
 
-function showBars(){
-    const container = document.getElementById('container');
-    container.innerHTML = " ";
+generateArray();
 
-    for(let i=0; i<array.length; i++){
-        const bar=document.createElement("div");
-        bar.style.height=Math.ceil(array[i]*100)+"%";
-        bar.classList.add("bar");
+function generateArray() {
+    randomArray.length = 0;
+    const container = document.querySelector("#container");
+    let arraySize = inp_asize.value;
+    container.innerHTML = '';
+    for (let i = 0; i < arraySize; i++) {
+        randomArray.push(getRandomInt(15, 605));
+    }
+    for (let i = 0; i < arraySize; i++) {
+        const bar = document.createElement("div");
+        bar.style.height = `${randomArray[i] / 1.5}px`;
+        bar.classList.add('bar');
+        bar.classList.add('bar-item');
+        bar.classList.add(`barNo${i}`);
         container.appendChild(bar);
     }
 }
-//function to handle button clicks using switch case
-function handleButtonClick(buttonNumber){
-    switch(buttonNumber){
-        case 1:
-            bubbleBtn.style.backgroundColor= "Purple";
-            bubbleSort(array);
-            break;
-        case 2:
-            selectionBtn.style.backgroundColor= "Purple";
-            selectionSort(array);
-            break;
-        case 3:
-            insertionBtn.style.backgroundColor= "Purple";
-            insertionSort(array);
-            break;
-        case 4:
-            quickBtn.style.backgroundColor= "Purple";
-            quick_sort();
-            break;
-        case 5:
-            mergeBtn.style.backgroundColor= "Purple";
-            merge_sort();
-            break;
-    }
+
+function getRandomInt(min, max) {
+    return min + Math.floor(Math.random() * (max - min + 1) + min);
 }
 
-//Promise 
-function sleep(ms){
-    return new Promise(resolve => setTimeout(resolve, ms));
+//Disabling function
+function disableInputs(){
+    inp_aspeed.disabled = true;
+    inp_asize.disabled = true;
+    generateArr.disabled = true;
+    bubbleBtn.disabled = true;
+    selectionBtn.disabled = true;
+    insertionBtn.disabled = true;
+    quickBtn.disabled = true;
+    mergeBtn.disabled = true;
+}
+
+//Enabling
+function enableInputs(){
+    inp_aspeed.disabled = false;
+    inp_asize.disabled = false;
+    generateArr.disabled = false;        
+    bubbleBtn.disabled = false;
+    selectionBtn.disabled = false;        
+    insertionBtn.disabled = false;
+    quickBtn.disabled = false;
+    mergeBtn.disabled = false;
+}
+function swap(a, b) {
+    let temp = a.style.height;
+    a.style.height = b.style.height;
+    b.style.height = temp;
 }
 
 // Bubble sort algorithm
-async function bubbleSort(array){
-    for (let i = 0; i < n - 1; i++){
-        for (let j = 0; j < n - i - 1; j++){
-            // Highlight the bars being compared
-            document.querySelectorAll('.bar')[j].style.backgroundColor = 'red';
-            document.querySelectorAll('.bar')[j + 1].style.backgroundColor = 'red';
+async function bubbleSort() {
+    bubbleBtn.style.backgroundColor= "rgb(92, 74, 175)";
+    console.log("Bubble Sort running");
+    disableInputs();
 
-            // Delay for visualization
-            await sleep(delay);
-            if (array[j] > array[j + 1]){
-                // Swap if the current element is greater than the next one
-                [array[j], array[j + 1]] = [array[j + 1], array[j]];
+    const arr = document.querySelectorAll(".bar");
+    for (let i = 0; i < arr.length - 1; i++) {
 
-                // Update the visual representation
-                showBars();
+        for (let j = 0; j < arr.length - i - 1; j++) {
+            if (parseInt(arr[j].style.height) > parseInt(arr[j + 1].style.height)) {
+                arr[j].style.background = '#f9259d';
+                arr[j + 1].style.background = '#f9259d';
+                swap(arr[j], arr[j + 1]);
+                await animate(2 * waitTime);
+                arr[j].style.background = '#25f9eb';
+                arr[j + 1].style.background = '#25f9eb';
+                await animate(waitTime);
+
+
             }
-            // Reset the color after comparison
-            document.querySelectorAll('.bar')[j].style.backgroundColor = 'black';
-            document.querySelectorAll('.bar')[j + 1].style.backgroundColor = 'black';
+            else {
+                arr[j].style.background = '#25f9eb';
+                arr[j + 1].style.background = '#25f9eb';
+                await animate(waitTime);
+            }
+            for (let k = j; k >= 0; k--)
+                arr[k].style.background = '#f98125';
         }
     }
-    //remove the background-Color of the button after fishing the sorting
-    bubbleBtn.style.backgroundColor = "white";
+
+    for (let k = arr.length - 1; k >= 0; k--) {
+        arr[k].style.background = '#f98125';
+        await animate(100 / randomArray.length);
+    }
+
+    bubbleBtn.style.backgroundColor= "rgba(116, 128, 236, 0.781)";
+    enableInputs();
 }
 
-
 //Selection Sort
-async function selectionSort(array)
-{
-    var min_idx;
- 
-    // One by one move boundary of unsorted subarray
-    for(let i=0; i<array.length-1; i++)
-    {
-        // Find the minimum element in unsorted array
-        min_idx = i;
+async function selectionSort() {
+    selectionBtn.style.backgroundColor= "rgb(92, 74, 175)";
+    console.log("Selection Sort running");
+    disableInputs();
+    const arr = document.querySelectorAll(".bar");
+    for (let i = 0; i < arr.length - 1; i++) {
+        arr[i].style.background = '#f9259d';
+        let min = i;
+        for (let j = i + 1; j < arr.length; j++) {
+            arr[j].style.background = '#f9259d';
+            if (parseInt(arr[j].style.height) < parseInt(arr[min].style.height)) {
+                min = j;
+                arr[min].style.background = '#9df925';
+                await animate(waitTime);
+            }
+            else {
+                console.log(j);
+                arr[j].style.background = '#f9259d';
+                await animate(waitTime);
+            }
 
-        for(let j=i+1; j<array.length; j++){
+            for (let k = min + 1; k < arr.length; k++)
+                arr[k].style.background = '#f98125';
 
-            //Highlighting the element being considered for swapping
-            document.querySelectorAll(".bar")[j].style.backgroundColor = "red";
-            document.querySelectorAll(".bar")[min_idx].style.backgroundColor = "red";
+            for (let l = i + 1; l < min; l++)
+                arr[l].style.background = '#f98125';
+        }
 
-            await sleep(delay);
-
-            if(array[j] < array[min_idx]){
-                min_idx = j;
-            }  
-
-        } 
-        // Swap the found minimum element with the first element
-        [array[i], array[min_idx]] = [array[min_idx], array[i]];
-
-        showBars();
+        swap(arr[i], arr[min]);
+        arr[i].style.background = '#25f9eb';
     }
-    //remove the background-Color of the button after fishing the sorting
-    selectionBtn.style.backgroundColor = "white";
+
+    for (let k = arr.length - 1; k >= 0; k--) {
+        arr[k].style.background = '#f98125';
+        await animate(100 / randomArray.length);
+    }
+
+    bubbleBtn.style.backgroundColor= "rgba(116, 128, 236, 0.781)";
+    enableInputs();
 }
 
 //insertion sort
-async function insertionSort(array) {
-    for (let i = 1; i < array.length; i++) {
-        let key = array[i];
-        let j;
+async function insertionSort() {
+    insertionBtn.style.backgroundColor= "rgb(92, 74, 175)";
+    console.log("Insertion Sort running");
+    disableInputs();
+    const arr = document.querySelectorAll(".bar");
+    for (let i = 1; i < arr.length; i++) {
+        let key = arr[i].style.height;
+        let j = i - 1;
+        arr[i].style.background = '#9df925';
+        await animate(waitTime);
+        while (j >= 0 && (parseInt(arr[j].style.height) > parseInt(key))) {
+            arr[j + 1].style.height = arr[j].style.height;
+            arr[j].style.background = '#f9259d';
+            j--;
 
-        for(j=i-1; j>=0 && array[j]>key; j--){
-            array[j + 1] = array[j];
-            // Red for comparison
-            document.querySelectorAll(".bar")[j+1].style.backgroundColor = "red"; 
+            await animate(waitTime);
 
-            await sleep(delay);
-  
-            // Blue for sorted elements
-            document.querySelectorAll(".bar")[j+1].style.backgroundColor = "blue"; 
+            for (let k = i; k >= 0; k--) {
+                arr[k].style.background = '#25f9eb';
+            }
         }
-        array[j + 1] = key;
-        // Green for the currently selected element
-        document.querySelectorAll(".bar")[j+1].style.backgroundColor = "green";
-        showBars();
-        await sleep(delay);
+        arr[j + 1].style.height = key;
     }
-    //remove the background-Color of the button after fishing the sorting
-    insertionBtn.style.backgroundColor = "white";
+
+    for (let k = arr.length - 1; k >= 0; k--) {
+        arr[k].style.background = '#f98125';
+        await animate(100 / randomArray.length);
+    }
+
+    insertionBtn.style.backgroundColor= "rgba(116, 128, 236, 0.781)";
+    enableInputs();
 }
   
 
 //quick sort
 
-async function partition(bars, left, right) {
-    let i = left - 1;
-    bars[right].style.background = "red";
-    for (let j = left; j <= right - 1; j++) {
-        bars[j].style.background = "yellow";
-        await sleep(delay);
-        if (parseInt(bars[j].style.height) < parseInt(bars[right].style.height)) {
-            i++;
-            
-            [bars[i].style.height, bars[j].style.height]=[bars[j].style.height, bars[i].style.height];
-            
-            bars[i].style.height = "orange";
-            if (i != j) {
-                bars[j].style.background = "orange";
-            }
-            await sleep(delay);
-        }
-        else {
-            bars[j].style.height = "blue";
-        }
-    }
-    i++;
-    await sleep(delay);
+async function partition(arr, l, r) {
+    console.log("In partition function");
+    let pivot = r;
+    let i = l - 1;
+    arr[pivot].style.background = '#f9259d';
 
-    [bars[i].style.height, bars[right].style.height]=[bars[right].style.height, bars[i].style.height];
-    
-    bars[right].style.background = "blue";
-    bars[i].style.background = "lightgreen";
-    await sleep(delay);
-    for (let k = 0; k < bars.length; k++) {
-        if (bars[k].style.background != "lightgreen") {
-            bars[k].style.background = "green";
+    for (let j = l; j <= r - 1; j++) {
+        arr[j].style.background = '#9df925';
+        await animate(waitTime);
+        if (parseInt(arr[j].style.height) < parseInt(arr[pivot].style.height)) {
+            i++;
+            arr[i].style.background = '#f92533';
+            arr[j].style.background = '#f92533';
+            await animate(waitTime);
+            swap(arr[i], arr[j]);
+            arr[i].style.background = '#259df9';
+            arr[j].style.background = '#259df9';
+            await animate(waitTime);
         }
     }
+    swap(arr[++i], arr[r]);
+
+
+    await animate(waitTime);
+
+    for (let k = 0; k <= pivot; k++)
+        arr[k].style.background = '#25f9eb';
+
+    for (let k = pivot + 1; k < arr.length; k++)
+        arr[k].style.background = '#25f9eb';
+
+
     return i;
 }
-async function quickSort(bars, left, right) {
-    if (left < right) {
-        let pivot_index = await partition(bars, left, right);
-        await quickSort(bars, left, pivot_index - 1);
-        await quickSort(bars, pivot_index + 1, right);
-    }
-    else {
-        if (left >= 0 && right >= 0 && left < bars.length && right < bars.length) {
-            bars[right].style.background = "lightgreen";
-            bars[left].style.background = "lightgreen";
-        }
+
+async function quickSort(arr, l, r) {
+    if (l < r) {
+        let pivot_index = await partition(arr, l, r);
+        await quickSort(arr, l, pivot_index - 1);
+        await quickSort(arr, pivot_index + 1, r);
     }
 }
-async function quick_sort(){
-    let bars = document.querySelectorAll(".bar");
-    let left = 0;
-    let right = bars.length - 1;
-    await quickSort(bars, left, right);
-    for (let k = bars.length - 1; k >= 0; k--) {
-		bars[k].style.background = "black";
-		await sleep(delay);
-	}
-    //Removing purple color of the button after the completion of quick sort
-    quickBtn.style.backgroundColor = "white";
-};
 
+async function quick_sort() {
+    quickBtn.style.backgroundColor= "rgb(92, 74, 175)";
+    console.log("Quick sort running");
+    disableInputs();
+    let arr = document.querySelectorAll('.bar');
+    for (let k = arr.length - 1; k >= 0; k--) {
+        arr[k].style.background = '#25f9eb';
+    }
+    await quickSort(arr, 0, parseInt(arr.length) - 1);
+    for (let k = arr.length - 1; k >= 0; k--) {
+        arr[k].style.background = '#f98125';
+        await animate(100 / arr.length);
+    }
+
+    quickBtn.style.backgroundColor= "rgba(116, 128, 236, 0.781)";
+    enableInputs();
+}
 //merge sort
-async function merge(arr, low, mid, high){
-
+async function merge(arr, low, mid, high) {
+	console.log('Inside merge function');
 	const s1 = mid - low + 1;
 	const s2 = high - mid;
 
@@ -232,50 +282,50 @@ async function merge(arr, low, mid, high){
 	let right = [];
 
 	for (let i = 0; i < s1; i++) {
-		arr[low + i].style.background = "red";
+		arr[low + i].style.background = '#f9259d';
 		left[i] = arr[low + i].style.height;
-		await sleep(delay);
+		await animate(waitTime);
 	}
 
 	for (let i = 0; i < s2; i++) {
-		arr[mid + 1 + i].style.background = "red";
+		arr[mid + 1 + i].style.background = '#f9259d';
 		right[i] = arr[mid + 1 + i].style.height;
-		await sleep(delay);
+		await animate(waitTime);
 	}
 
 	let i = 0, j = 0, k = low;
 
 	while (i < s1 && j < s2) {
 		if (parseInt(left[i]) <= parseInt(right[j])) {
-			arr[k].style.background = "green";
+			arr[k].style.background = '#25f9eb';
 			arr[k].style.height = left[i];
 			i++;
 			k++;
 		}
 
 		else {
-			arr[k].style.background = "green";
+			arr[k].style.background = '#25f9eb';
 			arr[k].style.height = right[j];
 			j++;
 			k++;
 		}
-		await sleep(delay);
+		await animate(waitTime);
 	}
 
 	while (i < s1) {
-		arr[k].style.background = "green";
+		arr[k].style.background = '#25f9eb';
 		arr[k].style.height = left[i];
 		i++;
 		k++;
-		await sleep(delay);
+		await animate(waitTime);
 	}
 
 	while (j < s2) {
-		arr[k].style.background = "green";
+		arr[k].style.background = '#25f9eb';
 		arr[k].style.height = right[j];
 		j++;
 		k++;
-		await sleep(delay);
+		await animate(waitTime);
 	}
 }
 
@@ -290,12 +340,16 @@ async function mergeSort(arr, l, r) {
 }
 
 async function merge_sort() {
+    mergeBtn.style.backgroundColor= "rgb(92, 74, 175)";
+	console.log("Merge Sort running");
+	disableInputs();
 	let arr = document.querySelectorAll('.bar');
 	await mergeSort(arr, 0, parseInt(arr.length) - 1);
 	for (let k = arr.length - 1; k >= 0; k--) {
-		arr[k].style.background = "black";
-		await sleep(delay);
+		arr[k].style.background = '#f98125';
+		await animate(100 / randomArray.length);
 	}
-    //removing the purple color of the button
-    mergeBtn.style.backgroundColor = "white";
+
+    mergeBtn.style.backgroundColor= "rgba(116, 128, 236, 0.781)";
+	enableInputs();
 }
